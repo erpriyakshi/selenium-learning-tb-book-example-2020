@@ -34,7 +34,6 @@ public class HomePageBookTest {
     public void testTitle() {
         //given
         String expectedTitle = "Selenium: Beginners Guide";
-        // webDriver.get(url);
 
         //when
         String actualTitle = webDriver.getTitle();
@@ -61,7 +60,6 @@ public class HomePageBookTest {
     public void testDescriptions() {
         //given
         String expectedDescriptions = "Below is a list of links to the examples needed in the chapters. Click on the links below and follow the steps in the book.";
-        //webDriver.get(url);
 
         //when
         WebElement descriptionElement = webDriver.findElement(By.xpath("//div[@class='mainbody']"));
@@ -83,7 +81,6 @@ public class HomePageBookTest {
         expectedlinksName.add("Chapter3");
         expectedlinksName.add("Chapter4");
         expectedlinksName.add("Chapter8");
-        //webDriver.get(url);
 
         //when
         List<WebElement> chapterLinks = webDriver.findElements(By.xpath("//div[@class='mainbody']/ul/li"));
