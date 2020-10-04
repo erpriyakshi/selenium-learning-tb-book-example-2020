@@ -105,7 +105,6 @@ public class HomePageBookTest {
         String expectedText = "It is text input field";
         inputField.sendKeys(expectedText);
         boolean enabled = inputField.isEnabled();
-        Thread.sleep(3000);
         String actualText = inputField.getAttribute("value");
         //then
         assertTrue(enabled, "Input field is not enabled");
@@ -167,6 +166,6 @@ public class HomePageBookTest {
 
     @AfterTest
     public void tearDownTest(){
-
+        System.out.println("Tear Down test.");
     }
 }
