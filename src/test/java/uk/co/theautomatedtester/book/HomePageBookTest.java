@@ -2,13 +2,8 @@ package uk.co.theautomatedtester.book;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
@@ -17,18 +12,7 @@ import java.util.Set;
 
 import static org.testng.Assert.*;
 
-public class HomePageBookTest {
-    WebDriver webDriver;
-    String url = "http://book.theautomatedtester.co.uk/";
-
-    @BeforeClass
-    public void setUp() {
-        String driverPath = "C:\\Users\\Priyakshi\\MyWorkspace\\selenium-learning-tb-book-example-2020\\src\\main\\resources\\BrowserDrivers\\chromedriver_win32\\chromedriver.exe";
-        System.setProperty("webdriver.chrome.driver", driverPath);
-        webDriver = new ChromeDriver();
-        webDriver.get(url);
-        webDriver.manage().window().maximize();
-    }
+public class HomePageBookTest extends BaseTest {
 
     //verify Title "Selenium: Beginners Guide" of Home Page
     @Test
@@ -159,13 +143,4 @@ public class HomePageBookTest {
         }
     }
 
-    @AfterClass
-    public void tearDown() {
-        webDriver.quit();
-    }
-
-    @AfterTest
-    public void tearDownTest(){
-        System.out.println("Tear Down test.");
-    }
 }
