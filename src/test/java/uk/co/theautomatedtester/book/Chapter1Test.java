@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 // TODO: this test call should only run if homePageBookTest.testClicksAllLinks() is passed
-//@Test (dependsOnGroups = "HomePageBookTest")
+@Test (dependsOnGroups = "HomePageBookTest")
 public class Chapter1Test extends BaseTest {
 
 
