@@ -14,7 +14,8 @@ import static org.testng.Assert.*;
 
 public class HomePageBookTest extends BaseTest {
 
-    //verify Title "Selenium: Beginners Guide" of Home Page
+
+    // verify Title "Selenium: Beginners Guide" of Home Page
     @Test
     public void testTitle() {
         //given
@@ -57,10 +58,10 @@ public class HomePageBookTest extends BaseTest {
 
     //verify link on homepage
     @Test
-    public void testLinks() {
+    public void testLinksNames() {
         //given
         int expectedLinks = 5;
-        ArrayList<String> expectedlinksName = new ArrayList<>();
+        List<String> expectedlinksName = new ArrayList<>();
         expectedlinksName.add("Chapter1");
         expectedlinksName.add("Chapter2");
         expectedlinksName.add("Chapter3");
@@ -71,8 +72,7 @@ public class HomePageBookTest extends BaseTest {
         List<WebElement> chapterLinks = webDriver.findElements(By.xpath("//div[@class='mainbody']/ul/li"));
         int actualLinks = chapterLinks.size();
         ArrayList<String> actualLinksName = new ArrayList<>();
-        for (int chapterLinkIndex = 0; chapterLinkIndex < chapterLinks.size(); chapterLinkIndex++) {
-            WebElement chapterLink = chapterLinks.get(chapterLinkIndex);
+        for (WebElement chapterLink : chapterLinks) {
             actualLinksName.add(chapterLink.getText());
         }
         //then
@@ -80,23 +80,10 @@ public class HomePageBookTest extends BaseTest {
         assertEquals(actualLinksName, expectedlinksName);
     }
 
-    //verify input field on home page
-    @Test
-    public void testInputField() throws InterruptedException {
-        //given
-        //when
-        WebElement inputField = webDriver.findElement(By.xpath("//div[@class='mainbody']/input"));
-        String expectedText = "It is text input field";
-        inputField.sendKeys(expectedText);
-        boolean enabled = inputField.isEnabled();
-        String actualText = inputField.getAttribute("value");
-        //then
-        assertTrue(enabled, "Input field is not enabled");
-        assertEquals(actualText, expectedText);
-    }
 
     //verify all links click one by one
-    @Test
+    // TODO: make is dependent on testLinksNames
+    @Test(groups = "HomePageBookTest", dependsOnMethods = {"testLinksNames"})
     public void testClicksAllLinks() {
         //given
         //when
@@ -113,8 +100,8 @@ public class HomePageBookTest extends BaseTest {
 
     }
 
-    @Test
-    public void testClicksAllLinksOpenInNewWindow() throws InterruptedException {
+    @Test(dependsOnMethods = {"testClicksAllLinks"})
+    public void testClicksAllLinksOpenInNewWindow() {
         //given
         String parent = webDriver.getWindowHandle();
         //when
@@ -128,8 +115,7 @@ public class HomePageBookTest extends BaseTest {
             // actions.contextClick(chapterLink).sendKeys(Keys.ARROW_DOWN).sendKeys(Keys.ENTER).perform();
             Set<String> windowHandleSet = webDriver.getWindowHandles();
             List<String> windowHandles = new ArrayList<>(windowHandleSet);
-            for (int windowHandleIndex = 0; windowHandleIndex < windowHandles.size(); windowHandleIndex++) {
-                String windowHandle = windowHandles.get(windowHandleIndex);
+            for (String windowHandle : windowHandles) {
                 if (!windowHandle.equals(parent)) {
                     webDriver.switchTo().window(windowHandle);
                     break;
@@ -141,6 +127,21 @@ public class HomePageBookTest extends BaseTest {
             webDriver.close();
             webDriver.switchTo().window(parent);
         }
+    }
+
+    //verify input field on home page
+    @Test
+    public void testInputField() {
+        //given
+        //when
+        WebElement inputField = webDriver.findElement(By.xpath("//div[@class='mainbody']/input"));
+        String expectedText = "It is text input field";
+        inputField.sendKeys(expectedText);
+        boolean enabled = inputField.isEnabled();
+        String actualText = inputField.getAttribute("value");
+        //then
+        assertTrue(enabled, "Input field is not enabled");
+        assertEquals(actualText, expectedText);
     }
 
 }
