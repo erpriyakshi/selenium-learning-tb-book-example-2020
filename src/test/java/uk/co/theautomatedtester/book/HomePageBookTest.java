@@ -2,13 +2,8 @@ package uk.co.theautomatedtester.book;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
@@ -17,20 +12,10 @@ import java.util.Set;
 
 import static org.testng.Assert.*;
 
-public class HomePageBookTest {
-    WebDriver webDriver;
-    String url = "http://book.theautomatedtester.co.uk/";
+public class HomePageBookTest extends BaseTest {
 
-    @BeforeClass
-    public void setUp() {
-        String driverPath = "C:\\Users\\Priyakshi\\MyWorkspace\\selenium-learning-tb-book-example-2020\\src\\main\\resources\\BrowserDrivers\\chromedriver_win32\\chromedriver.exe";
-        System.setProperty("webdriver.chrome.driver", driverPath);
-        webDriver = new ChromeDriver();
-        webDriver.get(url);
-        webDriver.manage().window().maximize();
-    }
 
-    //verify Title "Selenium: Beginners Guide" of Home Page
+    // verify Title "Selenium: Beginners Guide" of Home Page
     @Test
     public void testTitle() {
         //given
@@ -73,10 +58,10 @@ public class HomePageBookTest {
 
     //verify link on homepage
     @Test
-    public void testLinks() {
+    public void testLinksNames() {
         //given
         int expectedLinks = 5;
-        ArrayList<String> expectedlinksName = new ArrayList<>();
+        List<String> expectedlinksName = new ArrayList<>();
         expectedlinksName.add("Chapter1");
         expectedlinksName.add("Chapter2");
         expectedlinksName.add("Chapter3");
@@ -87,8 +72,7 @@ public class HomePageBookTest {
         List<WebElement> chapterLinks = webDriver.findElements(By.xpath("//div[@class='mainbody']/ul/li"));
         int actualLinks = chapterLinks.size();
         ArrayList<String> actualLinksName = new ArrayList<>();
-        for (int chapterLinkIndex = 0; chapterLinkIndex < chapterLinks.size(); chapterLinkIndex++) {
-            WebElement chapterLink = chapterLinks.get(chapterLinkIndex);
+        for (WebElement chapterLink : chapterLinks) {
             actualLinksName.add(chapterLink.getText());
         }
         //then
@@ -96,24 +80,10 @@ public class HomePageBookTest {
         assertEquals(actualLinksName, expectedlinksName);
     }
 
-    //verify input field on home page
-    @Test
-    public void testInputField() throws InterruptedException {
-        //given
-        //when
-        WebElement inputField = webDriver.findElement(By.xpath("//div[@class='mainbody']/input"));
-        String expectedText = "It is text input field";
-        inputField.sendKeys(expectedText);
-        boolean enabled = inputField.isEnabled();
-        Thread.sleep(3000);
-        String actualText = inputField.getAttribute("value");
-        //then
-        assertTrue(enabled, "Input field is not enabled");
-        assertEquals(actualText, expectedText);
-    }
 
     //verify all links click one by one
-    @Test
+    // TODO: make is dependent on testLinksNames
+    @Test(groups = "HomePageBookTest", dependsOnMethods = {"testLinksNames"})
     public void testClicksAllLinks() {
         //given
         //when
@@ -130,8 +100,8 @@ public class HomePageBookTest {
 
     }
 
-    @Test
-    public void testClicksAllLinksOpenInNewWindow() throws InterruptedException {
+    @Test(dependsOnMethods = {"testClicksAllLinks"})
+    public void testClicksAllLinksOpenInNewWindow() {
         //given
         String parent = webDriver.getWindowHandle();
         //when
@@ -145,8 +115,7 @@ public class HomePageBookTest {
             // actions.contextClick(chapterLink).sendKeys(Keys.ARROW_DOWN).sendKeys(Keys.ENTER).perform();
             Set<String> windowHandleSet = webDriver.getWindowHandles();
             List<String> windowHandles = new ArrayList<>(windowHandleSet);
-            for (int windowHandleIndex = 0; windowHandleIndex < windowHandles.size(); windowHandleIndex++) {
-                String windowHandle = windowHandles.get(windowHandleIndex);
+            for (String windowHandle : windowHandles) {
                 if (!windowHandle.equals(parent)) {
                     webDriver.switchTo().window(windowHandle);
                     break;
@@ -160,13 +129,19 @@ public class HomePageBookTest {
         }
     }
 
-    @AfterClass
-    public void tearDown() {
-        webDriver.quit();
+    //verify input field on home page
+    @Test
+    public void testInputField() {
+        //given
+        //when
+        WebElement inputField = webDriver.findElement(By.xpath("//div[@class='mainbody']/input"));
+        String expectedText = "It is text input field";
+        inputField.sendKeys(expectedText);
+        boolean enabled = inputField.isEnabled();
+        String actualText = inputField.getAttribute("value");
+        //then
+        assertTrue(enabled, "Input field is not enabled");
+        assertEquals(actualText, expectedText);
     }
 
-    @AfterTest
-    public void tearDownTest(){
-
-    }
 }
