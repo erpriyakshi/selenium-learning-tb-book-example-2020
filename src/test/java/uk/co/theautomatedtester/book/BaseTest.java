@@ -7,7 +7,6 @@ import org.testng.annotations.BeforeClass;
 
 public class BaseTest {
     WebDriver webDriver;
-    String url = "http://book.theautomatedtester.co.uk/";
 
     @BeforeClass
     public void setUp() {
@@ -15,7 +14,6 @@ public class BaseTest {
         System.setProperty("webdriver.chrome.driver", driverPath);
         webDriver = new ChromeDriver();
         webDriver.manage().window().maximize();
-        webDriver.get(url);
     }
 
     @AfterClass
