@@ -4,16 +4,26 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class HomePageBookTest extends BaseTest {
 
+    HomePageBook homePageBook;
+
+    @BeforeClass
+    public void setUp() {
+        super.setUp();
+        homePageBook = new HomePageBook(webDriver);
+        homePageBook.navigateToHomePage();
+    }
 
     // verify Title "Selenium: Beginners Guide" of Home Page
     @Test
@@ -22,7 +32,7 @@ public class HomePageBookTest extends BaseTest {
         String expectedTitle = "Selenium: Beginners Guide";
 
         //when
-        String actualTitle = webDriver.getTitle();
+        String actualTitle = homePageBook.getTitle();
 
         //then
         assertEquals(actualTitle, expectedTitle);
@@ -33,9 +43,10 @@ public class HomePageBookTest extends BaseTest {
     public void testPageHeading() {
         //given
         String expectedHeading = "Selenium: Beginners Guide";
+
         //when
-        WebElement mainHeading = webDriver.findElement(By.className("mainheading"));
-        String actualHeading = mainHeading.getText();
+        String actualHeading = homePageBook.getMainHeadingText();
+
         //then
         assertEquals(actualHeading, expectedHeading);
     }
@@ -45,62 +56,57 @@ public class HomePageBookTest extends BaseTest {
     @Test
     public void testDescriptions() {
         //given
+        SoftAssert softAssert = new SoftAssert();
         String expectedDescriptions = "Below is a list of links to the examples needed in the chapters. Click on the links below and follow the steps in the book.";
 
         //when
-        WebElement descriptionElement = webDriver.findElement(By.xpath("//div[@class='mainbody']"));
-        String actualDescription = descriptionElement.getText();
+        String actualDescriptionText = homePageBook.getDescriptionText();
 
         //then
-        assertNotNull(actualDescription);
-        assertTrue(actualDescription.startsWith(expectedDescriptions), "[" + actualDescription + "] does not contains [" + expectedDescriptions + "]");
+        softAssert.assertNotNull(actualDescriptionText);
+        softAssert.assertTrue(actualDescriptionText.startsWith(expectedDescriptions), "[" + actualDescriptionText + "] does not contains [" + expectedDescriptions + "]");
+        softAssert.assertAll();
     }
 
     //verify link on homepage
-    @Test
+    @Test(groups = "HomePageBookTest.testLinksNames")
     public void testLinksNames() {
         //given
         int expectedLinks = 5;
-        List<String> expectedlinksName = new ArrayList<>();
-        expectedlinksName.add("Chapter1");
-        expectedlinksName.add("Chapter2");
-        expectedlinksName.add("Chapter3");
-        expectedlinksName.add("Chapter4");
-        expectedlinksName.add("Chapter8");
+        List<String> expectedLinksName = new ArrayList<>();
+        expectedLinksName.add("Chapter1");
+        expectedLinksName.add("Chapter2");
+        expectedLinksName.add("Chapter3");
+        expectedLinksName.add("Chapter4");
+        expectedLinksName.add("Chapter8");
 
         //when
-        List<WebElement> chapterLinks = webDriver.findElements(By.xpath("//div[@class='mainbody']/ul/li"));
-        int actualLinks = chapterLinks.size();
-        ArrayList<String> actualLinksName = new ArrayList<>();
-        for (WebElement chapterLink : chapterLinks) {
-            actualLinksName.add(chapterLink.getText());
-        }
+        int actualLinks = homePageBook.getAllChapterLinks().size();
+        List<String> actualLinksName = homePageBook.getAllChapterLinkNames();
+
         //then
         assertEquals(expectedLinks, actualLinks);
-        assertEquals(actualLinksName, expectedlinksName);
+        assertEquals(actualLinksName, expectedLinksName);
     }
 
 
     //verify all links click one by one
-    // TODO: make is dependent on testLinksNames
-    @Test(groups = "HomePageBookTest", dependsOnMethods = {"testLinksNames"})
-    public void testClicksAllLinks() {
+    @Test
+    public void testClickChapterLinksAndVerifyUrl() {
         //given
-        //when
-        List<WebElement> chapterLinks = webDriver.findElements(By.xpath("//div[@class='mainbody']/ul/li/a"));
-        for (int i = 1; i <= chapterLinks.size(); i++) {
-            WebElement chapterLink = webDriver.findElement(By.xpath("(//div[@class='mainbody']/ul/li/a)[" + i + "]"));
+       int noOfChapterLinks = homePageBook.getAllChapterLinks().size();
+
+        //when and then
+        for (int index = 0; index <noOfChapterLinks ; index++) {
+            WebElement chapterLink = homePageBook.getAllChapterLinks().get(index);
             String expectedUrl = chapterLink.getAttribute("href");
-            chapterLink.click();
-            String actualUrl = webDriver.getCurrentUrl();
-            //then
+            String actualUrl = homePageBook.clickLinkAndGetUrl(chapterLink);
             assertEquals(actualUrl, expectedUrl);
-            webDriver.navigate().back();
         }
 
     }
 
-    @Test(dependsOnMethods = {"testClicksAllLinks"})
+    @Test(dependsOnMethods = {"testClickChapterLinksAndVerifyUrl"})
     public void testClicksAllLinksOpenInNewWindow() {
         //given
         String parent = webDriver.getWindowHandle();
@@ -133,15 +139,12 @@ public class HomePageBookTest extends BaseTest {
     @Test
     public void testInputField() {
         //given
+        String expectedInputFieldText = "It is text input field";
+        homePageBook.typeInputField("It is text input field");
         //when
-        WebElement inputField = webDriver.findElement(By.xpath("//div[@class='mainbody']/input"));
-        String expectedText = "It is text input field";
-        inputField.sendKeys(expectedText);
-        boolean enabled = inputField.isEnabled();
-        String actualText = inputField.getAttribute("value");
+        String actualInputFieldText = homePageBook.getInputFieldText();
         //then
-        assertTrue(enabled, "Input field is not enabled");
-        assertEquals(actualText, expectedText);
+        assertEquals(actualInputFieldText, expectedInputFieldText);
     }
 
 }

@@ -7,21 +7,22 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
-// TODO: this test call should only run if homePageBookTest.testClicksAllLinks() is passed
-@Test (dependsOnGroups = "HomePageBookTest")
+@Test (dependsOnGroups = "HomePageBookTest.testLinksNames")
 public class Chapter1Test extends BaseTest {
 
+    Chapter1 chapter1;
 
     @BeforeClass
-    public void setup() {
-        webDriver.findElement(By.xpath("(//div[@class='mainbody']//ul//a)[1]")).click();
+    public void setUp() {
+        super.setUp();
+        HomePageBook homePageBook = new HomePageBook(webDriver);
+        homePageBook.navigateToHomePage();
+        homePageBook.clickOnChapter1();
+        chapter1 = new Chapter1(webDriver);
     }
-
     // Verify Description and heading on Chapter1 Page
     @Test(priority = 1)
     public void testDescriptionsAndHeading() {
@@ -29,23 +30,20 @@ public class Chapter1Test extends BaseTest {
         String expectedHeading = "Selenium: Beginners Guide";
         String expectedDescription = "If you have arrived here then you have installed Selenium IDE and are ready to start recording your first test.";
         //When
-        WebElement mainHeadingElement = webDriver.findElement(By.className("mainheading"));
-        String actualMainHeading = mainHeadingElement.getText();
-        WebElement descriptionElement = webDriver.findElement(By.xpath("(//div[@class='mainbody']//p)[1]"));
-        String actualDescription = descriptionElement.getText();
+        String actualMainHeading = chapter1.getTextHeading();
+        String actualDescription = chapter1.getDescription();
         //then
         Assert.assertEquals(actualMainHeading, expectedHeading);
         Assert.assertEquals(actualDescription, expectedDescription);
     }
 
-    //verify radio button should be un selected
+    //verify radio button should be un-selected
     @Test(groups = {"RadioButtonGroupChapter1"}, priority = 2)
     public void testRadioButtonInitialState() {
         //given
         boolean expectedRadioButtonSelected = false;
         //when
-        WebElement radioButtonElement = webDriver.findElement(By.xpath("//input[@id='radiobutton']"));
-        boolean initialStateOfRadioButtonSelected = radioButtonElement.isSelected();
+        boolean initialStateOfRadioButtonSelected = chapter1.getRadioButtonState();
         //then
         Assert.assertFalse(initialStateOfRadioButtonSelected, "Radio Button is Selected");
     }
@@ -58,9 +56,8 @@ public class Chapter1Test extends BaseTest {
         //given
         boolean expectedRadioButtonSelected = true;
         //when
-        WebElement radioButtonElement = webDriver.findElement(By.xpath("//input[@id='radiobutton']"));
-        radioButtonElement.click();
-        boolean radioButtonSelected = radioButtonElement.isSelected();
+        chapter1.selectRadioButton();
+        boolean radioButtonSelected = chapter1.getRadioButtonState();
         //then
         Assert.assertTrue(radioButtonSelected, "Radio Button is not selected");
     }
@@ -69,10 +66,8 @@ public class Chapter1Test extends BaseTest {
     @Test
     public void testDropDownEnable() {
         //given
-        boolean dropdownEnableState = true;
         //when
-        WebElement dropdownElement = webDriver.findElement(By.id("selecttype"));
-        boolean actualDropDownState = dropdownElement.isEnabled();
+       boolean actualDropDownState = chapter1.getDropdownState();
         //then
         Assert.assertTrue(actualDropDownState, "DropDown Is not enabled");
     }
@@ -83,8 +78,7 @@ public class Chapter1Test extends BaseTest {
         //given
         int expectedDropDownListElementsSize = 4;
         //when
-        List<WebElement> actualListShowingElement = webDriver.findElements(By.xpath("//select[@id='selecttype']//option"));
-        int actualDropDownListElementsSize = actualListShowingElement.size();
+       int actualDropDownListElementsSize = chapter1.getDropdownSize();
         //then
         Assert.assertEquals(actualDropDownListElementsSize, expectedDropDownListElementsSize);
     }
@@ -95,15 +89,10 @@ public class Chapter1Test extends BaseTest {
         //given
         List<String> expectedDropDownValuesList = Arrays.asList("Selenium IDE", "Selenium Core", "Selenium RC", "Selenium Grid");
         //when
-        List<String> actualedDropDownValuesList = new ArrayList<>();
-        List<WebElement> dropdownValuesElementsList = webDriver.findElements(By.xpath("//select[@id='selecttype']//option"));
-        for (int indexForDropDownValues = 1; indexForDropDownValues <= dropdownValuesElementsList.size(); indexForDropDownValues++) {
-            WebElement dropdownElement = webDriver.findElement(By.xpath("(//select[@id='selecttype']//option)[" + indexForDropDownValues + "]"));
-            String actualdropDownValue = dropdownElement.getText();
-            actualedDropDownValuesList.add(actualdropDownValue);
-        }
+        List<String> actualDropDownValuesList = chapter1.getAllDropdownValues();
+
         //then
-        Assert.assertEquals(actualedDropDownValuesList, expectedDropDownValuesList);
+        Assert.assertEquals(actualDropDownValuesList, expectedDropDownValuesList);
     }
 
     //verify that the default item is getting displayed on drop down when the user first visits the page
@@ -112,27 +101,21 @@ public class Chapter1Test extends BaseTest {
         //given
         String expectedDefaultValue = "Selenium IDE";
         //when
-        WebElement defaultElement = webDriver.findElement(By.xpath(
-                "(//select[@id='selecttype']//option)[1]"));
-        String actualDefaultValue = defaultElement.getAttribute("value");
-        //TODO need to discuss with sumit
-        String actualDefaultValue1 = defaultElement.getText();
+        String actualDefaultValue = chapter1.getSelectedDropdownText();
         //then
         Assert.assertEquals(actualDefaultValue, expectedDefaultValue);
     }
 
     //Check that the selected category on drop down list is getting highlighted on selecting the item.
     @Test
-    public void testSelectDropdownItem() {
+    public void testSelectAndGetDropdownItem() {
         //given
-        String expectedSelectedItem = "Selenium Core";
+        String expectedSelectedText = "Selenium Core";
+        chapter1.selectDropDownByText(expectedSelectedText);
         //when
-
-        WebElement dropDownElement = webDriver.findElement(By.xpath("(//select[@id='selecttype']//option)[2]"));
-        dropDownElement.click();
-        String actualSelectedValue = dropDownElement.getText();
+        String actualSelectedText =  chapter1.getSelectedDropdownText();
         //then
-        Assert.assertEquals(actualSelectedValue, expectedSelectedItem);
+        Assert.assertEquals(actualSelectedText, expectedSelectedText);
     }
 
     //Verify that the User able to Select the Drop down by "up and down" key form the keyboard
@@ -142,12 +125,11 @@ public class Chapter1Test extends BaseTest {
     public void testCheckBoxEnabledAndUnchecked() {
         //given
         //when
-        WebElement checkboxElement = webDriver.findElement(By.xpath("//input[@name='selected(1234)']"));
-        boolean actualCheckboxInitialState = checkboxElement.isSelected();
-        boolean actualCheckboxEnabledStatus = checkboxElement.isEnabled();
+        boolean actualCheckboxEnabledStatus = chapter1.getCheckBoxEnableState();
+        boolean actualCheckboxInitialState = chapter1.getCheckBoxInitialState();
         //then
-        Assert.assertFalse(actualCheckboxInitialState);
         Assert.assertTrue(actualCheckboxEnabledStatus);
+        Assert.assertFalse(actualCheckboxInitialState);
     }
 
     //verify checkbox is selected after click on
@@ -173,8 +155,7 @@ public class Chapter1Test extends BaseTest {
         //given
         String expectedText = "Assert that this text is on the page";
         //when
-        WebElement textElement = webDriver.findElement(By.xpath("//div[@id='divontheleft']"));
-        String actualText = textElement.getText();
+        String actualText =  chapter1.getTextOnPage();
         //then
         Assert.assertEquals(actualText, expectedText);
     }
@@ -185,9 +166,8 @@ public class Chapter1Test extends BaseTest {
         //given
         String expectedButtonLabel = "Verify this button he here";
         //when
-        WebElement buttonElement = webDriver.findElement(By.id("verifybutton"));
-        boolean buttonPresence = buttonElement.isDisplayed();
-        String actualButtonLabel = buttonElement.getAttribute("value");
+        boolean buttonPresence = chapter1.getButtonPresence();
+        String actualButtonLabel = chapter1.getButtonLabelText();
         //then
         Assert.assertTrue(buttonPresence);
         Assert.assertEquals(actualButtonLabel, expectedButtonLabel);
@@ -200,30 +180,18 @@ public class Chapter1Test extends BaseTest {
     public void testLaunchAnotherWindowLink() throws InterruptedException {
         //given
         String expectedPopUpText = "Text within the pop up window";
-        String parent = webDriver.getWindowHandle();
         //when
-        WebElement linkElement = webDriver.findElement(By.xpath("(//div[@id='multiplewindow'])[1]"));
-        linkElement.click();
-        Set<String> windowHandleSet = webDriver.getWindowHandles();
-        List<String> windowHandles = new ArrayList<>(windowHandleSet);
-        for (String windowHandle : windowHandles) {
-            if (!windowHandle.equals(parent)) {
-                webDriver.switchTo().window(windowHandle);
-                break;
-            }
-        }
-        webDriver.manage().window().maximize();
-        Thread.sleep(3000);
-        WebElement popuptextElement = webDriver.findElement(By.id("popuptext"));
-        String actualPopUpText = popuptextElement.getText();
-        WebElement closePopUpElement = webDriver.findElement(By.id("closepopup"));
-        closePopUpElement.click();
+        String actualPopUpText = chapter1.getPopUpText();
         //then
         Assert.assertEquals(actualPopUpText, expectedPopUpText);
     }
 
     //verify loadAjex div
     public void testLoadAjexDiv() {
-        //TODO complete it by tomorrow
+        //TODO complete it by Monday (27-Oct-2020)
+        // Question: mujhse hoga nahi?
+        // Answer: try karo.
+        // Counter argument by priyakshi: meine try kiya mujhse hua nhi.
+        // Answer: JHOOT!! @#$$%@@#@
     }
 }
